@@ -8,7 +8,10 @@ from database.schemas import AgentCreate
 from agents.llm_agent import ask_ai
 from agents.research_agent import research_agent
 from agents.summary_agent import summary_agent
+
 from runtime.crew_runtime import run_crew
+from workflows.templates import run_workflow
+from logs.monitor import save_log, get_logs
 
 
 # Create DB tables
@@ -23,14 +26,15 @@ app = FastAPI()
 
 @app.get("/")
 def home():
-    return {"message": "Yuno Backend Running"}
+    return {
+        "message": "Yuno Backend Running"
+    }
 
 
 # -------------------------
 # AGENT CRUD
 # -------------------------
 
-# Create Agent
 @app.post("/agents")
 def create_agent(
     agent: AgentCreate,
@@ -55,7 +59,6 @@ def create_agent(
     return new_agent
 
 
-# Get Agents
 @app.get("/agents")
 def get_agents(
     db: Session = Depends(get_db)
@@ -63,18 +66,21 @@ def get_agents(
     return db.query(Agent).all()
 
 
-# Delete Agent
 @app.delete("/agents/{agent_id}")
 def delete_agent(
     agent_id: int,
     db: Session = Depends(get_db)
 ):
-    agent = db.query(Agent).filter(
+    agent = db.query(
+        Agent
+    ).filter(
         Agent.id == agent_id
     ).first()
 
     if not agent:
-        return {"error": "Agent not found"}
+        return {
+            "error": "Agent not found"
+        }
 
     db.delete(agent)
     db.commit()
@@ -84,19 +90,22 @@ def delete_agent(
     }
 
 
-# Update Agent
 @app.put("/agents/{agent_id}")
 def update_agent(
     agent_id: int,
     updated: AgentCreate,
     db: Session = Depends(get_db)
 ):
-    agent = db.query(Agent).filter(
+    agent = db.query(
+        Agent
+    ).filter(
         Agent.id == agent_id
     ).first()
 
     if not agent:
-        return {"error": "Agent not found"}
+        return {
+            "error": "Agent not found"
+        }
 
     agent.name = updated.name
     agent.role = updated.role
@@ -160,17 +169,89 @@ def multi_agent(
 
 
 # -------------------------
-# CREW AI ROUTE
+# CREW AI + LOGGING
 # -------------------------
 
 @app.post("/crew")
 def crew_route(query: str):
 
-    result = run_crew(query)
+    try:
+
+        result = run_crew(query)
+
+        save_log(
+            query,
+            str(result)
+        )
+
+        return {
+            "query": query,
+            "crew_result": result
+        }
+
+    except Exception as e:
+
+        save_log(
+            query,
+            str(e)
+        )
+
+        return {
+            "error": str(e)
+        }
+
+
+# -------------------------
+# WORKFLOW BUILDER
+# -------------------------
+
+@app.post("/workflow")
+def workflow_route(
+    workflow_type: str,
+    query: str
+):
+
+    try:
+
+        result = run_workflow(
+            workflow_type,
+            query
+        )
+
+        save_log(
+            query,
+            str(result)
+        )
+
+        return {
+            "workflow": workflow_type,
+            "query": query,
+            "result": result
+        }
+
+    except Exception as e:
+
+        save_log(
+            query,
+            str(e)
+        )
+
+        return {
+            "workflow": workflow_type,
+            "query": query,
+            "error": str(e)
+        }
+
+
+# -------------------------
+# LOGS
+# -------------------------
+
+@app.get("/logs")
+def logs_route():
 
     return {
-        "query": query,
-        "crew_result": result
+        "logs": get_logs()
     }
 
 
@@ -182,4 +263,28 @@ def crew_route(query: str):
 def get_messages(
     db: Session = Depends(get_db)
 ):
-    return db.query(Message).all()
+    return db.query(
+        Message
+    ).all()
+
+
+# -------------------------
+# DEMO / SYSTEM STATUS
+# -------------------------
+
+@app.get("/demo")
+def demo():
+
+    return {
+        "project": "Yuno AI Agent Platform",
+        "status": "Running",
+        "features": [
+            "Single AI Agent",
+            "Multi-Agent",
+            "CrewAI Runtime",
+            "Workflow Builder",
+            "Monitoring Logs",
+            "Database History",
+            "Telegram Bot"
+        ]
+    }

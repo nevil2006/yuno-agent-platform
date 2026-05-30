@@ -9,41 +9,50 @@ groq_llm = LLM(
     api_key=os.getenv("GROQ_API_KEY")
 )
 
+
 def run_crew(query):
 
     research_agent = Agent(
         role="Research Agent",
-        goal="Research user topic",
+        goal="Research user topic briefly",
         backstory="Expert researcher",
         verbose=True,
-        llm=groq_llm
+        llm=groq_llm,
+        allow_delegation=True
     )
 
     summary_agent = Agent(
         role="Summary Agent",
-        goal="Summarize information",
+        goal="Create short summary",
         backstory="Expert summarizer",
         verbose=True,
         llm=groq_llm
     )
 
     research_task = Task(
-        description=f"Research this topic: {query}",
-        expected_output="Detailed research on topic",
+        description=f"Research briefly: {query}",
+        expected_output="Short research under 100 words",
         agent=research_agent
     )
 
     summary_task = Task(
-        description="Summarize the research",
-        expected_output="Clear short summary",
+        description="Summarize briefly",
+        expected_output="Short concise summary under 50 words",
         agent=summary_agent
     )
 
     crew = Crew(
-        agents=[research_agent, summary_agent],
-        tasks=[research_task, summary_task],
+        agents=[
+            research_agent,
+            summary_agent
+        ],
+        tasks=[
+            research_task,
+            summary_task
+        ],
         verbose=True
     )
 
     result = crew.kickoff()
+
     return str(result)
