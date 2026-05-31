@@ -140,6 +140,7 @@ def ask_agent(prompt: str):
 
 # -------------------------
 # MULTI AGENT + SAVE HISTORY
+# + LOGGING
 # -------------------------
 
 @app.post("/multi-agent")
@@ -152,6 +153,7 @@ def multi_agent(
 
     summary = summary_agent(research)
 
+    # Save DB history
     message = Message(
         query=query,
         research=research,
@@ -160,6 +162,12 @@ def multi_agent(
 
     db.add(message)
     db.commit()
+
+    # Save Logs
+    save_log(
+        query,
+        summary
+    )
 
     return {
         "query": query,
