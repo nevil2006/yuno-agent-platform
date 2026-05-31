@@ -6,11 +6,9 @@ st.set_page_config(
     layout="wide"
 )
 
-# -------------------------
-# SIDEBAR
-# -------------------------
 
-st.sidebar.title("🤖 Yuno AI")
+
+st.sidebar.title(" Yuno AI")
 st.sidebar.success("System Online")
 st.sidebar.caption("Version 1.0")
 
@@ -23,22 +21,16 @@ menu = st.sidebar.selectbox(
     ]
 )
 
-# -------------------------
-# HEADER
-# -------------------------
 
-st.title("🚀 Yuno AI Agent Platform")
+st.title(" Yuno AI Agent Platform")
 st.caption(
     "Multi-Agent AI Platform powered by FastAPI + CrewAI + Groq"
 )
 
-# -------------------------
-# ASK AI
-# -------------------------
 
 if menu == "Ask AI":
 
-    st.subheader("🧠 Ask Multi-Agent")
+    st.subheader(" Ask Multi-Agent")
 
     question = st.text_input(
         "Enter question",
@@ -68,7 +60,7 @@ if menu == "Ask AI":
 
                     st.success("Answer Generated")
 
-                    st.subheader("📘 Research")
+                    st.subheader(" Research")
                     st.write(
                         data.get(
                             "research",
@@ -76,7 +68,7 @@ if menu == "Ask AI":
                         )
                     )
 
-                    st.subheader("📝 Summary")
+                    st.subheader(" Summary")
                     st.success(
                         data.get(
                             "summary",
@@ -93,13 +85,11 @@ if menu == "Ask AI":
                     f"Connection Error: {e}"
                 )
 
-# -------------------------
-# LOGS
-# -------------------------
+
 
 elif menu == "Logs":
 
-    st.subheader("📊 System Logs")
+    st.subheader(" System Logs")
 
     try:
 
@@ -124,13 +114,11 @@ elif menu == "Logs":
     except Exception as e:
         st.error(e)
 
-# -------------------------
-# DEMO
-# -------------------------
+
 
 elif menu == "Demo":
 
-    st.subheader("🚀 System Demo")
+    st.subheader(" System Demo")
 
     try:
 
@@ -154,7 +142,7 @@ elif menu == "Demo":
 
             for feature in data["features"]:
                 st.write(
-                    f"✅ {feature}"
+                    f" {feature}"
                 )
 
         else:
@@ -163,9 +151,7 @@ elif menu == "Demo":
     except Exception as e:
         st.error(e)
 
-# -------------------------
-# FOOTER
-# -------------------------
+
 
 st.markdown("---")
 st.caption(
